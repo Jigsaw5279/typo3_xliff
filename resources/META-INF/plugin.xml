@@ -24,13 +24,16 @@
   <depends>com.intellij.modules.lang</depends>
   -->
 
+  <depends>com.jetbrains.php</depends>
+  <depends>com.intellij.modules.platform</depends>
+
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
   </extensions>
 
   <actions>
     <!-- Add your actions here -->
-    <action id="Typo3Xliff.AddOrUpdateTranslation" class="de.kawachee.actions.AddOrUpdateTranslation"
+    <action id="Typo3Xliff.AddOrUpdateTranslation" class="de.kawachee.typo3_xliff.actions.AddOrUpdateTranslation"
             text="Add/Update XLIFF Translation"
             description="Adds or updates a given String into a TYPO3 translation file">
       <add-to-group group-id="RefactoringMenu" anchor="last" />
