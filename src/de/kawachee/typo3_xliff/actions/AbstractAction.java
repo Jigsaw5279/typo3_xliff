@@ -42,7 +42,9 @@ public abstract class AbstractAction extends AnAction {
         }
         selectedFile = openFileChooserDialog(project);
 
-        this.doAction(actionEvent);
+        if(selectedFile != null) {
+            this.doAction(actionEvent);
+        }
     }
 
     @Override

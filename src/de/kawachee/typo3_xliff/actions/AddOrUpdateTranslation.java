@@ -117,7 +117,7 @@ public class AddOrUpdateTranslation extends AbstractAction {
                 preserveSpaces, true, Messages.getQuestionIcon(), "", new NonEmptyInputValidator());
 
         preserveSpaces = userInputPair.getSecond();
-        if (selectedFile != null) {
+        if (selectedFile != null && userInputPair.getFirst() != null) {
             try {
                 updateTranslationDocument(userInputPair, selectedText);
                 replaceSelectedTextWithViewHelper(userInputPair.getFirst(), project, editor, selectedText.contains("%s"));

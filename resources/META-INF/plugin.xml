@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>de.kawachee.typo3_xliff</id>
   <name>TYPO3 XLIFF</name>
-  <version>1.0</version>
+  <version>1.0.5</version>
   <vendor email="support@kawachee.de" url="https://www.kawachee.de">Fabian Bettag</vendor>
 
   <description><![CDATA[
