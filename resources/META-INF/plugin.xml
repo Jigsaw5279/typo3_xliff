@@ -10,8 +10,23 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
+      <dl>
+        <dt>1.0.6</dt>
+        <dd>
+          <ul>
+            <li>FIX: Actually show notifications</li>
+            <li>FEATURE: Add <code>target</code> tag in translated XLIFF files</li>
+          </ul>
+        </dd>
+        <dt>1.0.5</dt>
+        <dd>
+          <ul>
+            <li>FIX: Prevent crash when not selecting a language file</li>
+          </ul>
+        </dd>
+        <dt>1.0</dt>
+        <dd>Initial Release</dd>
+      </dl>
     ]]>
   </change-notes>
 
