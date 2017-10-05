@@ -5,6 +5,7 @@ import com.intellij.openapi.util.Pair;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
+import de.kawachee.typo3_xliff.exceptions.BodyNotWriteableException;
 import de.kawachee.typo3_xliff.exceptions.InvalidXliffFileException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,8 +29,10 @@ public class XLIFF {
         }
     }
 
-    public void translate(Pair<String, Boolean> input, String value, boolean createTarget) {
-        if (!this.bodySubTag.isWritable() && !this.bodySubTag.isValid()) return;
+    public void translate(Pair<String, Boolean> input, String value, boolean createTarget) throws BodyNotWriteableException {
+        if (!this.bodySubTag.isWritable() && !this.bodySubTag.isValid()) {
+            throw new BodyNotWriteableException();
+        }
 
         String id = input.getFirst();
         XmlTag tag = findById(id);

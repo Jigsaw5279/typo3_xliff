@@ -19,6 +19,7 @@ import com.intellij.openapi.util.Pair;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import de.kawachee.typo3_xliff.documents.XLIFF;
+import de.kawachee.typo3_xliff.exceptions.BodyNotWriteableException;
 import de.kawachee.typo3_xliff.exceptions.InvalidXliffFileException;
 
 import java.io.IOException;
@@ -58,7 +59,11 @@ public class AddOrUpdateTranslation extends AbstractAction {
                 String filename = selectedFile.getVirtualFile().getName();
 
                 Project project = selectedFile.getProject();
-                xliffDocument.translate(unitId, value, filename.matches("[a-z]{1,2}?\\.locallang\\.xlf"));
+                try {
+                    xliffDocument.translate(unitId, value, filename.matches("[a-z]{1,2}?\\.locallang\\.xlf"));
+                } catch (BodyNotWriteableException e) {
+                    Notifications.Bus.notify(notificationGroup.createNotification("The languange file is not writeable", MessageType.ERROR));
+                }
                 reformatDocument(project, selectedFile);
                 saveDocument(project);
             }
