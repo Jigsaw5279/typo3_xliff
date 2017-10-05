@@ -29,42 +29,38 @@ public class AddOrUpdateTranslation extends AbstractAction {
 
     private void updateTranslationDocument(final Pair<String, Boolean> unitId, final String unitValue) throws IOException, InvalidXliffFileException {
         final XLIFF xliffDocument;
-        try {
-            xliffDocument = new XLIFF(selectedFile);
-            StringBuilder temp = new StringBuilder(unitValue);
-            switch (this.currentFile.getFileType().getName()) {
-                case "PHP":
-                    char firstChar = temp.charAt(0);
-                    if (firstChar == '"' || firstChar == '\'') {
-                        temp.deleteCharAt(0);
-                    }
-
-                    int end = temp.length() - 1;
-                    char lastChar = temp.charAt(end);
-                    if (lastChar == '"' || lastChar == '\'') {
-                        temp.deleteCharAt(end);
-                    }
-                    break;
-                case "HTML":
-                case "PLAIN_TEXT":
-                default:
-                    break;
-            }
-
-            final String value = temp.toString();
-
-            WriteCommandAction.runWriteCommandAction(selectedFile.getProject(), new Runnable() {
-                @Override
-                public void run() {
-                    Project project = selectedFile.getProject();
-                    xliffDocument.translate(unitId, value);
-                    reformatDocument(project, selectedFile);
-                    saveDocument(project);
+        xliffDocument = new XLIFF(selectedFile);
+        StringBuilder temp = new StringBuilder(unitValue);
+        switch (this.currentFile.getFileType().getName()) {
+            case "PHP":
+                char firstChar = temp.charAt(0);
+                if (firstChar == '"' || firstChar == '\'') {
+                    temp.deleteCharAt(0);
                 }
-            });
-        } catch (InvalidXliffFileException ex) {
-            Notifications.Bus.notify(notificationGroup.createNotification(ex.getMessage(), MessageType.ERROR));
+
+                int end = temp.length() - 1;
+                char lastChar = temp.charAt(end);
+                if (lastChar == '"' || lastChar == '\'') {
+                    temp.deleteCharAt(end);
+                }
+                break;
+            case "HTML":
+            case "PLAIN_TEXT":
+            default:
+                break;
         }
+
+        final String value = temp.toString();
+
+        WriteCommandAction.runWriteCommandAction(selectedFile.getProject(), new Runnable() {
+            @Override
+            public void run() {
+                Project project = selectedFile.getProject();
+                xliffDocument.translate(unitId, value);
+                reformatDocument(project, selectedFile);
+                saveDocument(project);
+            }
+        });
     }
 
     private void replaceSelectedTextWithViewHelper(final String translationKeyId, final Project project, final Editor editor, boolean hasArguments) {
