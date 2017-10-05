@@ -55,8 +55,10 @@ public class AddOrUpdateTranslation extends AbstractAction {
         WriteCommandAction.runWriteCommandAction(selectedFile.getProject(), new Runnable() {
             @Override
             public void run() {
+                String filename = selectedFile.getVirtualFile().getName();
+
                 Project project = selectedFile.getProject();
-                xliffDocument.translate(unitId, value);
+                xliffDocument.translate(unitId, value, filename.matches("[a-z]{1,2}?\\.locallang\\.xlf"));
                 reformatDocument(project, selectedFile);
                 saveDocument(project);
             }

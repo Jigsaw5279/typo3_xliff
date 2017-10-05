@@ -28,21 +28,25 @@ public class XLIFF {
         }
     }
 
-    public void translate(Pair<String, Boolean> input, String value) {
+    public void translate(Pair<String, Boolean> input, String value, boolean createTarget) {
         if (!this.bodySubTag.isWritable() && !this.bodySubTag.isValid()) return;
 
         String id = input.getFirst();
         XmlTag tag = findById(id);
 
         if (tag == null) {
-            tag = createTag(id, input.getSecond());
+            tag = createTag(id, input.getSecond(), createTarget);
         }
 
         tag.findFirstSubTag("source").getValue().setText(value);
+
+        if(createTarget) {
+            tag.findFirstSubTag("target").getValue().setText(value);
+        }
     }
 
     @NotNull
-    private XmlTag createTag(String id, Boolean preserveSpace) {
+    private XmlTag createTag(String id, Boolean preserveSpace, boolean createTarget) {
         XmlTag tag = bodySubTag.createChildTag("trans-unit", bodySubTag.getNamespace(), null, false);
         tag.setAttribute("id", id);
 
@@ -52,6 +56,12 @@ public class XLIFF {
 
         XmlTag sourceTag = tag.createChildTag("source", bodySubTag.getNamespace(), "", false);
         tag.addSubTag(sourceTag, false);
+
+        if (createTarget) {
+            XmlTag targetTag = tag.createChildTag("target", bodySubTag.getNamespace(), "", false);
+            tag.addSubTag(targetTag, false);
+        }
+
         return bodySubTag.addSubTag(tag, false);
     }
 
