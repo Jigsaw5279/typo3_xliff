@@ -1,6 +1,7 @@
 package de.kawachee.typo3_xliff.actions;
 
 import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -9,6 +10,7 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.fileChooser.FileChooserDialog;
 import com.intellij.openapi.fileChooser.FileChooserFactory;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindowId;
 import com.intellij.psi.PsiFile;
@@ -75,6 +77,8 @@ public abstract class AbstractAction extends AnAction {
             PsiFile file = PsiManager.getInstance(project).findFile(virtualFiles[0]);
             if (file.isWritable() && file.isValid()) {
                 return file;
+            } else {
+                Notifications.Bus.notify(notificationGroup.createNotification("The file is not writeable or not valid", MessageType.ERROR));
             }
         }
         return null;

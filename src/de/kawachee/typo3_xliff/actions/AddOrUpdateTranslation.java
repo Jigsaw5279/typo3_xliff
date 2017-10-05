@@ -4,6 +4,7 @@ import com.intellij.codeInsight.actions.AbstractLayoutCodeProcessor;
 import com.intellij.codeInsight.actions.RearrangeCodeProcessor;
 import com.intellij.codeInsight.actions.ReformatCodeProcessor;
 import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -11,6 +12,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.NonEmptyInputValidator;
 import com.intellij.openapi.util.Pair;
@@ -26,39 +28,43 @@ public class AddOrUpdateTranslation extends AbstractAction {
     protected boolean preserveSpaces = false;
 
     private void updateTranslationDocument(final Pair<String, Boolean> unitId, final String unitValue) throws IOException, InvalidXliffFileException {
-        final XLIFF xliffDocument = new XLIFF(selectedFile);
+        final XLIFF xliffDocument;
+        try {
+            xliffDocument = new XLIFF(selectedFile);
+            StringBuilder temp = new StringBuilder(unitValue);
+            switch (this.currentFile.getFileType().getName()) {
+                case "PHP":
+                    char firstChar = temp.charAt(0);
+                    if (firstChar == '"' || firstChar == '\'') {
+                        temp.deleteCharAt(0);
+                    }
 
-        StringBuilder temp = new StringBuilder(unitValue);
-        switch (this.currentFile.getFileType().getName()) {
-            case "PHP":
-                char firstChar = temp.charAt(0);
-                if(firstChar == '"' || firstChar == '\'') {
-                    temp.deleteCharAt(0);
-                }
-
-                int end = temp.length() - 1;
-                char lastChar = temp.charAt(end);
-                if(lastChar == '"') {
-                    temp.deleteCharAt(end);
-                }
-                break;
-            case "HTML":
-            case "PLAIN_TEXT":
-            default:
-                break;
-        }
-
-        final String value = temp.toString();
-
-        WriteCommandAction.runWriteCommandAction(selectedFile.getProject(), new Runnable() {
-            @Override
-            public void run() {
-                Project project = selectedFile.getProject();
-                xliffDocument.translate(unitId, value);
-                reformatDocument(project, selectedFile);
-                saveDocument(project);
+                    int end = temp.length() - 1;
+                    char lastChar = temp.charAt(end);
+                    if (lastChar == '"' || lastChar == '\'') {
+                        temp.deleteCharAt(end);
+                    }
+                    break;
+                case "HTML":
+                case "PLAIN_TEXT":
+                default:
+                    break;
             }
-        });
+
+            final String value = temp.toString();
+
+            WriteCommandAction.runWriteCommandAction(selectedFile.getProject(), new Runnable() {
+                @Override
+                public void run() {
+                    Project project = selectedFile.getProject();
+                    xliffDocument.translate(unitId, value);
+                    reformatDocument(project, selectedFile);
+                    saveDocument(project);
+                }
+            });
+        } catch (InvalidXliffFileException ex) {
+            Notifications.Bus.notify(notificationGroup.createNotification(ex.getMessage(), MessageType.ERROR));
+        }
     }
 
     private void replaceSelectedTextWithViewHelper(final String translationKeyId, final Project project, final Editor editor, boolean hasArguments) {
@@ -67,7 +73,7 @@ public class AddOrUpdateTranslation extends AbstractAction {
 
         switch (this.currentFile.getFileType().getName()) {
             case "PHP":
-                if(hasArguments) {
+                if (hasArguments) {
                     templateString = "LocalizationUtility::translate(\"%s\", $this->extensionName, []);";
                 } else {
                     templateString = "LocalizationUtility::translate(\"%s\", $this->extensionName);";
@@ -75,7 +81,7 @@ public class AddOrUpdateTranslation extends AbstractAction {
                 break;
             case "HTML":
             case "PLAIN_TEXT":
-                if(hasArguments) {
+                if (hasArguments) {
                     templateString = "<f:translate key=\"%s\" arguments=\"{}\" />";
                 } else {
                     templateString = "<f:translate key=\"%s\" />";
@@ -87,7 +93,6 @@ public class AddOrUpdateTranslation extends AbstractAction {
         }
 
 
-
         WriteCommandAction.runWriteCommandAction(project, new Runnable() {
             @Override
             public void run() {
@@ -97,7 +102,7 @@ public class AddOrUpdateTranslation extends AbstractAction {
                 final String replacement = String.format(templateString, translationKeyId);
                 final Document editorDocument = editor.getDocument();
 
-                if(!editorDocument.isWritable()) {
+                if (!editorDocument.isWritable()) {
                     editorDocument.setReadOnly(false);
                 }
 
@@ -122,7 +127,6 @@ public class AddOrUpdateTranslation extends AbstractAction {
                 updateTranslationDocument(userInputPair, selectedText);
                 replaceSelectedTextWithViewHelper(userInputPair.getFirst(), project, editor, selectedText.contains("%s"));
             } catch (IOException | InvalidXliffFileException e1) {
-                e1.printStackTrace();
                 notificationGroup.createNotification(e1.getMessage(), NotificationType.ERROR)
                         .notify(project);
             }
