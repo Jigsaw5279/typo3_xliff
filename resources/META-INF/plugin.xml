@@ -11,6 +11,13 @@
 
   <change-notes><![CDATA[
       <dl>
+        <dt>1.0.7</dt>
+        <dd>
+          <ul>
+            <li>Fix: Updating a String will also respect translated files</li>
+            <li>Feature: Add <code>approved="no"</code> to added or updated translation blocks</li>
+          </ul>
+        </dd>
         <dt>1.0.6</dt>
         <dd>
           <ul>
