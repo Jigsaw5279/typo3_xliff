@@ -49,11 +49,11 @@ public abstract class AbstractAction extends AnAction {
         }
         selectedFile = openFileChooserDialog(project);
 
-        if(selectedFile != null) {
+        if (selectedFile != null) {
             try {
                 transformer = Factory.build(currentFile.getFileType().getName());
                 this.doAction(actionEvent);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException |InvocationTargetException e) {
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
                 e.printStackTrace(System.err);
                 Notifications.Bus.notify(notificationGroup.createNotification("Can't translate from here", MessageType.ERROR));
             }
@@ -75,8 +75,8 @@ public abstract class AbstractAction extends AnAction {
 
         String selectedText = editor.getSelectionModel().getSelectedText();
         e.getPresentation().setEnabledAndVisible(
-                    null != selectedText
-                &&  this.enabledFileTypes.contains(type)
+                null != selectedText
+                        && this.enabledFileTypes.contains(type)
         );
     }
 

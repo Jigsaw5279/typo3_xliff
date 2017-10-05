@@ -21,10 +21,8 @@ import com.intellij.psi.PsiFile;
 import de.kawachee.typo3_xliff.documents.XLIFF;
 import de.kawachee.typo3_xliff.exceptions.BodyNotWriteableException;
 import de.kawachee.typo3_xliff.exceptions.InvalidXliffFileException;
-import de.kawachee.typo3_xliff.transfomers.Factory;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
 public class AddOrUpdateTranslation extends AbstractAction {
 
