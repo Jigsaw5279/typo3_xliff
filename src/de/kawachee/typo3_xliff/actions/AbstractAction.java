@@ -15,8 +15,11 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindowId;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import de.kawachee.typo3_xliff.transfomers.Factory;
+import de.kawachee.typo3_xliff.transfomers.Transformer;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -33,6 +36,8 @@ public abstract class AbstractAction extends AnAction {
 
     protected PsiFile currentFile;
 
+    protected Transformer transformer;
+
     @Override
     public void actionPerformed(AnActionEvent actionEvent) {
         Project project = actionEvent.getProject();
@@ -45,7 +50,14 @@ public abstract class AbstractAction extends AnAction {
         selectedFile = openFileChooserDialog(project);
 
         if(selectedFile != null) {
-            this.doAction(actionEvent);
+            try {
+                transformer = Factory.build(currentFile.getFileType().getName());
+                this.doAction(actionEvent);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException |InvocationTargetException e) {
+                e.printStackTrace(System.err);
+                Notifications.Bus.notify(notificationGroup.createNotification("Can't translate from here", MessageType.ERROR));
+            }
+
         }
     }
 

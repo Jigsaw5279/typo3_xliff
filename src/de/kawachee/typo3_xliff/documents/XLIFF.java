@@ -44,16 +44,21 @@ public class XLIFF {
         tag.findFirstSubTag("source").getValue().setText(value);
 
         if (createTarget) {
-            XmlTag target = tag.findFirstSubTag("target");
-            if (target == null) {
-                target = tag.createChildTag("target", bodySubTag.getNamespace(), "", false);
-                tag.addSubTag(target, false);
-            }
-
-            target.getValue().setText(value);
+            createOrUpdateTarget(value, tag);
         }
 
         tag.setAttribute("approved", "no");
+    }
+
+    private void createOrUpdateTarget(String value, XmlTag root) {
+        XmlTag target = root.findFirstSubTag("target");
+        if (target == null) {
+            target = root.createChildTag("target", bodySubTag.getNamespace(), "", false);
+            target.getValue().setText(value);
+            root.addSubTag(target, false);
+        }
+
+        target.getValue().setText(value);
     }
 
     @NotNull

@@ -21,8 +21,10 @@ import com.intellij.psi.PsiFile;
 import de.kawachee.typo3_xliff.documents.XLIFF;
 import de.kawachee.typo3_xliff.exceptions.BodyNotWriteableException;
 import de.kawachee.typo3_xliff.exceptions.InvalidXliffFileException;
+import de.kawachee.typo3_xliff.transfomers.Factory;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 public class AddOrUpdateTranslation extends AbstractAction {
 
@@ -31,27 +33,8 @@ public class AddOrUpdateTranslation extends AbstractAction {
     private void updateTranslationDocument(final Pair<String, Boolean> unitId, final String unitValue) throws IOException, InvalidXliffFileException {
         final XLIFF xliffDocument;
         xliffDocument = new XLIFF(selectedFile);
-        StringBuilder temp = new StringBuilder(unitValue);
-        switch (this.currentFile.getFileType().getName()) {
-            case "PHP":
-                char firstChar = temp.charAt(0);
-                if (firstChar == '"' || firstChar == '\'') {
-                    temp.deleteCharAt(0);
-                }
 
-                int end = temp.length() - 1;
-                char lastChar = temp.charAt(end);
-                if (lastChar == '"' || lastChar == '\'') {
-                    temp.deleteCharAt(end);
-                }
-                break;
-            case "HTML":
-            case "PLAIN_TEXT":
-            default:
-                break;
-        }
-
-        final String value = temp.toString();
+        final String value = transformer.transformValue(unitValue);
 
         WriteCommandAction.runWriteCommandAction(selectedFile.getProject(), new Runnable() {
             @Override
@@ -72,29 +55,7 @@ public class AddOrUpdateTranslation extends AbstractAction {
 
     private void replaceSelectedTextWithViewHelper(final String translationKeyId, final Project project, final Editor editor, boolean hasArguments) {
 
-        final String templateString;
-
-        switch (this.currentFile.getFileType().getName()) {
-            case "PHP":
-                if (hasArguments) {
-                    templateString = "LocalizationUtility::translate(\"%s\", $this->extensionName, []);";
-                } else {
-                    templateString = "LocalizationUtility::translate(\"%s\", $this->extensionName);";
-                }
-                break;
-            case "HTML":
-            case "PLAIN_TEXT":
-                if (hasArguments) {
-                    templateString = "<f:translate key=\"%s\" arguments=\"{}\" />";
-                } else {
-                    templateString = "<f:translate key=\"%s\" />";
-                }
-                break;
-            default:
-                templateString = "";
-                break;
-        }
-
+        final String templateString = transformer.replacement(hasArguments);
 
         WriteCommandAction.runWriteCommandAction(project, new Runnable() {
             @Override
@@ -129,8 +90,8 @@ public class AddOrUpdateTranslation extends AbstractAction {
             try {
                 updateTranslationDocument(userInputPair, selectedText);
                 replaceSelectedTextWithViewHelper(userInputPair.getFirst(), project, editor, selectedText.contains("%s"));
-            } catch (IOException | InvalidXliffFileException e1) {
-                notificationGroup.createNotification(e1.getMessage(), NotificationType.ERROR)
+            } catch (IOException | InvalidXliffFileException ex) {
+                notificationGroup.createNotification(ex.getMessage(), NotificationType.ERROR)
                         .notify(project);
             }
 
